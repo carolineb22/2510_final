@@ -1,3 +1,3 @@
-C:/Users/carol/OneDrive/Desktop/2510/cmake-build-debug/CMakeFiles/2510.dir
-C:/Users/carol/OneDrive/Desktop/2510/cmake-build-debug/CMakeFiles/edit_cache.dir
-C:/Users/carol/OneDrive/Desktop/2510/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/home/alex-hidalgo/CLionProjects/2510_final/cmake-build-debug/CMakeFiles/2510.dir
+/home/alex-hidalgo/CLionProjects/2510_final/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/alex-hidalgo/CLionProjects/2510_final/cmake-build-debug/CMakeFiles/rebuild_cache.dir
