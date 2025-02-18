@@ -37,7 +37,7 @@ void menu()
     {
         printf("\n1. Add Patient Record\n"
                 "2. View All Patients\n"
-                "3. Search Patient by ID\n"
+                "3. Search Patient\n"
                 "4. Discharge Patient\n"
                 "5. Manage Doctor Schedule\n"
                 "6. Exit");
@@ -136,10 +136,8 @@ void searchPatients()
         printf("Enter Patient ID: ");
         scanf("%d", &id);
         while (getchar() != '\n') {}
-        if (patientIdExists(patientList, totalPatients, id) != 1)
-        {
-            index = id;
-        }
+
+        index = patientIdExists(patientList, totalPatients, id);
     }
     else if (choice == 2)
     {
@@ -187,7 +185,7 @@ int patientIdExists(struct Patient arr[], int size, int id)
     {
         if (arr[i].patientID == id)
         {
-            return 1;
+            return i;
         }
     }
     return -1;
