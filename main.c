@@ -135,8 +135,11 @@ void searchPatients()
     {
         printf("Enter Patient ID: ");
         scanf("%d", &id);
-        while (getchar() != '\n');
-        index = patientIdExists(patientList, totalPatients, id);
+        while (getchar() != '\n') {}
+        if (patientIdExists(patientList, totalPatients, id) != 1)
+        {
+            index = id;
+        }
     }
     else if (choice == 2)
     {
