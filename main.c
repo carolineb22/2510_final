@@ -124,7 +124,48 @@ void viewPatients()
 
 void searchPatients()
 {
+    int choice, id, index = -1;
+    char name[30];
 
+    printf("Search by (1) ID or (2) Name: ");
+    scanf("%d", &choice);
+    while (getchar() != '\n') {}
+
+    if (choice == 1)
+    {
+        printf("Enter Patient ID: ");
+        scanf("%d", &id);
+        while (getchar() != '\n');
+        index = patientIdExists(patientList, totalPatients, id);
+    }
+    else if (choice == 2)
+    {
+        printf("Enter Patient Name: ");
+        fgets(name, 30, stdin);
+        name[strcspn(name, "\n")] = 0;
+
+        for (int i = 0; i < totalPatients; i++)
+        {
+            if (strcmp(patientList[i].name, name) == 0)
+            {
+                index = i;
+                break;
+            }
+        }
+    }
+    if (index != -1)
+    {
+        printf("Patient found - ID: %d, Name: %s, Age: %d, Room #: %d, Diagnosis: %s\n",
+                patientList[index].patientID,
+                patientList[index].name,
+                patientList[index].age,
+                patientList[index].roomNumber,
+                patientList[index].diagnosis);
+    }
+    else
+    {
+        printf("Patient not found.\n");
+    }
 }
 
 void dischargePatients()
