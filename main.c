@@ -66,20 +66,20 @@ void addPatient()
         return;
     }
     struct Patient newPatient;
-    int id;
 
-    printf("Enter patient ID: ");
-    scanf("%d", &id);
+    printf("\nEnter patient ID: ");
+    scanf("%d", &newPatient.patientID);
     while (getchar() != '\n') {}
 
-    if (id <= 0 || id > MAX_PATIENTS || patientIdExists(patientList, totalPatients, id) != -1)
+    if (newPatient.patientID <= 0 ||
+        newPatient.patientID > MAX_PATIENTS ||
+        patientIdExists(patientList, totalPatients, newPatient.patientID) != -1)
     {
         printf("Invalid or duplicate ID!\n");
         return;
     }
-    newPatient.patientID = id;
 
-    printf("\nPlease enter patients full name: ");
+    printf("Please enter patients full name: ");
     fgets(newPatient.name, sizeof(newPatient.name), stdin);
     newPatient.name[strcspn(newPatient.name, "\n")] = 0;
 
@@ -87,13 +87,23 @@ void addPatient()
     scanf("%d", &newPatient.age);
     while (getchar() != '\n') {}
 
-    printf("Please enter patient's diagnosis name or reason for admission: ");
-    fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
-    newPatient.diagnosis[strcspn(newPatient.diagnosis, "\n")] = 0;
+    if (newPatient.age < 0)
+    {
+        printf("Age cannot be less than 0.\n");
+    }
 
     printf("Please enter patient's room number: ");
     scanf("%d", &newPatient.roomNumber);
     while (getchar() != '\n') {}
+
+    if (newPatient.roomNumber < 0)
+    {
+        printf("Room Number cannot be less than 0.\n");
+    }
+
+    printf("Please enter patient's diagnosis name or reason for admission: ");
+    fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
+    newPatient.diagnosis[strcspn(newPatient.diagnosis, "\n")] = 0;
 
     patientList[totalPatients] = newPatient;
     totalPatients++;
@@ -124,6 +134,12 @@ void viewPatients()
 
 void searchPatients()
 {
+    if (totalPatients == 0)
+    {
+        printf("No patients booked!\n");
+        return;
+    }
+
     int choice, id, index = -1;
     char name[30];
 
@@ -171,7 +187,33 @@ void searchPatients()
 
 void dischargePatients()
 {
+    if (totalPatients == 0)
+    {
+        printf("No patients booked!\n");
+        return;
+    }
 
+    int id, index;
+
+    printf("Enter Patient ID to Discharge: ");
+    scanf("%d", &id);
+    while (getchar() != '\n') {}
+
+    index = patientIdExists(patientList, totalPatients, id);
+
+    if (index != -1)
+    {
+        for (int i = index; i < totalPatients; i++)
+        {
+            patientList[i] = patientList[i + 1];
+        }
+        totalPatients--;
+        printf("Patient %d discharged.\n", id);
+    }
+    else
+    {
+        printf("Patient ID not found.\n");
+    }
 }
 
 void manageDoctorSchedule()
