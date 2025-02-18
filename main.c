@@ -1,72 +1,150 @@
 #include <stdio.h>
-#include "patient.c"
+#include <string.h>
+
+#define MAX_PATIENTS 50
+
+int totalPatients = 0;
+
+struct Patient
+{
+    int patientID;
+    char name[30];
+    int age;
+    char diagnosis[100];
+    int roomNumber;
+};
+
+struct Patient patientList[MAX_PATIENTS];
+
+void menu(void);
+void addPatient();
+void viewPatients();
+void searchPatients();
+void dischargePatients();
+void manageDoctorSchedule();
+int patientIdExists();
 
 int main(void)
 {
-    struct Patient patientList[50];
-    int count = 0;
-    int flag = 1;
-    char again;
+    menu();
+    return 0;
+}
 
-    while (flag == 1)
+void menu()
+{
+    int selection;
+    do
     {
         printf("\n1. Add Patient Record\n"
-            "2. View All Patients\n"
-            "3. Search Patient by ID\n"
-            "4. Discharge Patient\n"
-            "5. Manage Doctor Schedule\n"
-            "6. Exit");
-
-        int selection;
+                "2. View All Patients\n"
+                "3. Search Patient by ID\n"
+                "4. Discharge Patient\n"
+                "5. Manage Doctor Schedule\n"
+                "6. Exit");
         printf("\nEnter your selection : ");
         scanf("%d", &selection);
+        while (getchar() != '\n') {}
 
         switch (selection)
         {
-            case 1:
-                printf("You have chosen 'Add Patient Record'.");
-                struct Patient newPatient;
-                AddNewPatient();
-                addElement(newPatient, patientList);
-                printf("\nPatient record added successfully.");
-                break;
-            case 2:
-                printf("You have chosen 'View All Patients'.");
-                printArray(count, patientList);
-                break;
-            case 3:
-                printf("You have chosen 'Search Patient by ID'.");
-                // run method to search array for patient by ID number from patient class
-                break;
-            case 4:
-                printf("You have chosen 'Discharge Patient'.");
-                // run method to discharge patient from patient class
-                break;
-            case 5:
-                printf("You have chosen 'Manage Doctor Schedule'.");
-                // run method to see and edit the doctor's schedule from doctor class
-                break;
-            case 6:
-                printf("You have chosen 'Exit'");
-                // Exit program
-                break;
-            default:
-                printf("You have chosen 'Invalid Choice'. Please input a valid selection.");
-                main();
+            case 1: addPatient(); break;
+            case 2: viewPatients(); break;
+            case 3: searchPatients(); break;
+            case 4: dischargePatients(); break;
+            case 5: manageDoctorSchedule(); break;
+            case 6: printf("Exiting Program...\n"); break;
+            default: printf("Invalid choice! Try again.\n");
         }
+    } while (selection != 6);
+}
 
-        printf("\nWould you like to continue? y/n\n");
-        scanf("%c", &again);
-        getchar();
-        if (again == 'y'|| again == 'Y')
+void addPatient()
+{
+    if (totalPatients >= MAX_PATIENTS)
+    {
+        printf("Hospital is full! cannot add more patients.\n");
+        return;
+    }
+    struct Patient newPatient;
+    int id;
+
+    printf("Enter patient ID: ");
+    scanf("%d", &id);
+    while (getchar() != '\n') {}
+
+    if (id <= 0 || id > MAX_PATIENTS || patientIdExists(patientList, totalPatients, id) != -1)
+    {
+        printf("Invalid or duplicate ID!\n");
+        return;
+    }
+    newPatient.patientID = id;
+
+    printf("\nPlease enter patients full name: ");
+    fgets(newPatient.name, sizeof(newPatient.name), stdin);
+    newPatient.name[strcspn(newPatient.name, "\n")] = 0;
+
+    printf("Please enter patient's age: ");
+    scanf("%d", &newPatient.age);
+    while (getchar() != '\n') {}
+
+    printf("Please enter patient's diagnosis name or reason for admission: ");
+    fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
+    newPatient.diagnosis[strcspn(newPatient.diagnosis, "\n")] = 0;
+
+    printf("Please enter patient's room number: ");
+    scanf("%d", &newPatient.roomNumber);
+    while (getchar() != '\n') {}
+
+    patientList[totalPatients] = newPatient;
+    totalPatients++;
+
+    printf("Patient added successfully!\n");
+}
+
+void viewPatients()
+{
+    if (totalPatients == 0)
+    {
+        printf("No patients booked!\n");
+        return;
+    }
+
+    printf("\nPatients:\n");
+    printf("ID\tName\t\t\t\tage\tRoom #\tDiagnosis\n");
+    for (int i = 0; i < totalPatients; i++)
+    {
+        printf("%d\t%-30s\t%d\t%d\t%s\n",
+            patientList[i].patientID,
+            patientList[i].name,
+            patientList[i].age,
+            patientList[i].roomNumber,
+            patientList[i].diagnosis);
+    }
+}
+
+void searchPatients()
+{
+
+}
+
+void dischargePatients()
+{
+
+}
+
+void manageDoctorSchedule()
+{
+
+}
+
+int patientIdExists(struct Patient arr[], int size, int id)
+{
+    for (int i = 0; i < size; i++)
+    {
+        if (arr[i].patientID == id)
         {
-            flag = 1;
-        }
-        else
-        {
-            flag = 0;
-            printf("\nThank you, the program will now close.\n");
+            return 1;
         }
     }
-    return 0;
+    return -1;
 }
