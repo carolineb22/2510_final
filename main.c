@@ -263,9 +263,11 @@ void manageDoctorSchedule()
             printf("Which day would you like to schedule %s ?\n", name);
             printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
 
+            while ((getchar()) != '\n');
             scanf("%d", &dayChoice);
             printf("Which shift would you like to schedule %s ?\n", name);
           printf("1. Morning \n2. Afternoon \n3. Evening\n");
+          while ((getchar()) != '\n');
             scanf("%d", &shiftChoice);
 
           char temp[256]; // Temporary string to hold the formatted name
