@@ -5,6 +5,15 @@
 
 int totalPatients = 0;
 
+char string_array[8][4][256] = { {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
+                                     {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+                                     {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}};
+
 struct Patient
 {
     int patientID;
@@ -219,76 +228,60 @@ void dischargePatients()
 
 void manageDoctorSchedule()
 {
-  char choice;
-  int choice2;
-  int choice3;
-  int dayChoice;
-  int shiftChoice;
-  char name[50];
+    char choice;
+    int choice2;
+    int dayChoice;
+    int shiftChoice;
+    char name[50];
 
-
-    char string_array[8][4][256] = { {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
-                                     {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}};
-
-    int i, j;
-    for (i = 0; i < 8; i++) {
+    // Display the current schedule
+    for (int i = 0; i < 8; i++) {
         printf("\n");
-        for (j = 0; j < 4; j++) {
-            printf("%s", string_array[i][j]);
+        for (int j = 0; j < 4; j++) {
+            printf("%-20s", string_array[i][j]);
         }
     }
+
     printf("\nWould you like to edit the schedule? (Y/N): ");
-    scanf(" %c", &choice); // Note the space before %c to consume any leftover newline
-    if (choice == 'N' || choice == 'n')
-    {
-      printf("Closing schedule...\n");
-    }
-    else if (choice == 'Y' || choice == 'y')
-    {
-      printf("Would you like to (1) add or (2) delete from the schedule?: ");
-      scanf("%d", &choice2);
-      if (choice2 == 1) //add to schedule
-      {
-        printf("Please enter the name of the doctor you would like to add to the schedule: ");
-              while ((getchar()) != '\n');
-              scanf("%[^\n]%*c", name);
+    scanf(" %c", &choice);
 
+    if (choice == 'Y' || choice == 'y') {
+        printf("Would you like to (1) add or (2) delete from the schedule?: ");
+        scanf("%d", &choice2);
 
-            printf("Which day would you like to schedule %s ?\n", name);
+        if (choice2 == 1) { // Add to schedule
+            printf("Please enter the name of the doctor you would like to add to the schedule: ");
+            while (getchar() != '\n') {}
+            scanf("%[^\n]%*c", name);
+
+            printf("Which day would you like to schedule %s?\n", name);
             printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
-
-            while ((getchar()) != '\n');
             scanf("%d", &dayChoice);
-            printf("Which shift would you like to schedule %s ?\n", name);
-          printf("1. Morning \n2. Afternoon \n3. Evening\n");
-          while ((getchar()) != '\n');
-            scanf("%d", &shiftChoice);
+            dayChoice--; // Adjust for 0-based index
 
-          char temp[256]; // Temporary string to hold the formatted name
-          sprintf(temp, "\t%s", name); // Format the name
-          strcpy(string_array[dayChoice][shiftChoice], temp); // Copy the formatted string
-          printf("Shift added successfully!\n");
+            printf("Which shift would you like to schedule %s?\n", name);
+            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+            scanf("%d", &shiftChoice);
+            shiftChoice--; // Adjust for 0-based index
+
+            // Validate choices
+            if (dayChoice >= 0 && dayChoice < 7 && shiftChoice >= 0 && shiftChoice < 3) {
+                strcpy(string_array[dayChoice][shiftChoice], name);
+                printf("Shift added successfully!\n");
+            } else {
+                printf("Invalid day or shift choice.\n");
+            }
+        } else if (choice2 == 2) { // Delete from schedule
+            // Implement deletion logic here
+            printf("Deletion functionality is not yet implemented.\n");
+        } else {
+            printf("Invalid choice.\n");
         }
-        else if (choice == 2) //delete from schedule
-        {
-            printf("do this");
-        }
-        else
-        {
-            printf("Invalid choice!"); //TODO Loop back to choice
-        }
-    }
-    else
-    {
-      printf("Invalid choice!"); //TODO loop back to choice
+    } else {
+        printf("Closing schedule...\n");
     }
 }
+
 
 int patientIdExists(struct Patient arr[], int size, int id)
 {
