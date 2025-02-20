@@ -281,12 +281,12 @@ void manageDoctorSchedule()
         }
         else
         {
-            printf("Invalid choice!"); //TODO Loop back to choice
+            printf("Invalid choice"); //TODO Loop back to choice
         }
     }
     else
     {
-      printf("Invalid choice!"); //TODO loop back to choice
+      printf("Invalid choice"); //TODO loop back to choice
     }
 }
 
