@@ -206,6 +206,14 @@ void dischargePatients()
     {
         for (int i = index; i < totalPatients; i++)
         {
+            if (i == totalPatients - 1)
+            {
+                break;
+                /* Possible fix in assigning the last struct in the array to RAM
+                 * by making it such that once we reach the last struct, we exit
+                 * from the loop and leave it alone. This will be handled more
+                 * gracefully once we can use proper Mem. Alloc. */
+            }
             patientList[i] = patientList[i + 1];
         }
         totalPatients--;
@@ -219,61 +227,63 @@ void dischargePatients()
 
 void manageDoctorSchedule()
 {
-  char choice;
-  int choice2;
-  int choice3;
-  int dayChoice;
-  int shiftChoice;
-  char name[50];
+    char choice;
+    int choice2;
+    int dayChoice;
+    int shiftChoice;
+    char name[50];
 
+    char string_array[8][4][256] = {
+        {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
+        {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+        {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}
+    };
 
-    char string_array[8][4][256] = { {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
-                                     {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-                                     {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}};
-
-    int i, j;
-    for (i = 0; i < 8; i++) {
+    for (int i = 0; i < 8; i++)
+    {
         printf("\n");
-        for (j = 0; j < 4; j++) {
+        for (int j = 0; j < 4; j++)
+        {
             printf("%s", string_array[i][j]);
         }
     }
+
     printf("\nWould you like to edit the schedule? (Y/N): ");
     scanf(" %c", &choice); // Note the space before %c to consume any leftover newline
+
     if (choice == 'N' || choice == 'n')
     {
-      printf("Closing schedule...\n");
+        printf("Closing schedule...\n");
     }
     else if (choice == 'Y' || choice == 'y')
     {
-      printf("Would you like to (1) add or (2) delete from the schedule?: ");
-      scanf("%d", &choice2);
-      if (choice2 == 1) //add to schedule
-      {
-        printf("Please enter the name of the doctor you would like to add to the schedule: ");
-              while ((getchar()) != '\n');
-              scanf("%[^\n]%*c", name);
-
+        printf("Would you like to (1) add or (2) delete from the schedule?: ");
+        scanf("%d", &choice2);
+        if (choice2 == 1) //add to schedule
+        {
+            printf("Please enter the name of the doctor you would like to add to the schedule: ");
+            while (getchar() != '\n') {}
+            scanf("%[^\n]%*c", name);
 
             printf("Which day would you like to schedule %s ?\n", name);
             printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
-
-            while ((getchar()) != '\n');
+            while (getchar() != '\n') {}
             scanf("%d", &dayChoice);
+
             printf("Which shift would you like to schedule %s ?\n", name);
-          printf("1. Morning \n2. Afternoon \n3. Evening\n");
-          while ((getchar()) != '\n');
+            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+            while (getchar() != '\n') {}
             scanf("%d", &shiftChoice);
 
-          char temp[256]; // Temporary string to hold the formatted name
-          sprintf(temp, "\t%s", name); // Format the name
-          strcpy(string_array[dayChoice][shiftChoice], temp); // Copy the formatted string
-          printf("Shift added successfully!\n");
+            char temp[256]; // Temporary string to hold the formatted name
+            sprintf(temp, "\t%s", name); // Format the name
+            strcpy(string_array[dayChoice][shiftChoice], temp); // Copy the formatted string
+            printf("Shift added successfully!\n");
         }
         else if (choice == 2) //delete from schedule
         {
@@ -286,7 +296,7 @@ void manageDoctorSchedule()
     }
     else
     {
-      printf("Invalid choice!"); //TODO loop back to choice
+        printf("Invalid choice!"); //TODO loop back to choice
     }
 }
 
