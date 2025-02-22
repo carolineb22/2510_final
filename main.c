@@ -6,14 +6,14 @@
 int totalPatients = 0;
 
 char string_array[8][4][256] = {
-    {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
-    {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-    {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}
+    {"SCHEDULE", "\tMorning", "\tAfternoon", "\tEvening"},
+    {"Sunday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Monday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Tuesday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Wednesday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Thursday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Friday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
+    {"Saturday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"}
 };
 
 struct Patient
@@ -300,9 +300,12 @@ void manageDoctorSchedule()
             // shiftChoice--; // Adjust for 0-based index
 
             // Validate choices
-            if (dayChoice >= 1 && dayChoice < 7 && shiftChoice >= 1 && shiftChoice < 3)
+            if (dayChoice >= 1 && dayChoice <= 7 && shiftChoice >= 1 && shiftChoice <= 3)
             {
-                strcpy(string_array[dayChoice][shiftChoice], name);
+                char formattedName[50] = {'\t'};
+                strcat(formattedName, name);
+
+                strcpy(string_array[dayChoice][shiftChoice], formattedName);
                 printf("Shift added successfully!\n");
             }
             else
@@ -312,8 +315,27 @@ void manageDoctorSchedule()
         }
         else if (choice2 == 2)
         {
-            // Implement deletion logic here
-            printf("Deletion functionality is not yet implemented.\n");
+            printf("Enter which day to clear: ");
+            printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
+            scanf("%d", &dayChoice);
+            while (getchar() != '\n') {}
+
+            printf("Enter the Shift to clear: ");
+            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+            scanf("%d", &shiftChoice);
+            while (getchar() != '\n') {}
+
+            // Validate choices
+            if (dayChoice >= 1 && dayChoice <= 7 &&
+                shiftChoice >= 1 && shiftChoice <= 3)
+            {
+                strcpy(string_array[dayChoice][shiftChoice], "\t[EMPTY]");
+                printf("Shift removed successfully!\n");
+            }
+            else
+            {
+                printf("Invalid day or shift choice!\n");
+            }
         }
         else
         {
