@@ -5,6 +5,17 @@
 
 int totalPatients = 0;
 
+char string_array[8][4][256] = {
+    {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
+    {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
+    {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}
+};
+
 struct Patient
 {
     int patientID;
@@ -67,39 +78,63 @@ void addPatient()
     }
     struct Patient newPatient;
 
-    printf("\nEnter patient ID: ");
-    scanf("%d", &newPatient.patientID);
-    while (getchar() != '\n') {}
+    int validID = 0,
+        validAge = 0,
+        validRoomNumber = 0;
 
-    if (newPatient.patientID <= 0 ||
-        newPatient.patientID > MAX_PATIENTS ||
-        patientIdExists(patientList, totalPatients, newPatient.patientID) != -1)
+    do
     {
-        printf("Invalid or duplicate ID!\n");
-        return;
-    }
+        printf("\nEnter patient ID: ");
+        scanf("%d", &newPatient.patientID);
+        while (getchar() != '\n') {}
+
+        if (newPatient.patientID <= 0 ||
+            newPatient.patientID > MAX_PATIENTS ||
+            patientIdExists(patientList, totalPatients, newPatient.patientID) != -1)
+        {
+            printf("Invalid or duplicate ID!\n");
+        }
+        else
+        {
+            validID = 1;
+        }
+    } while (validID != 1);
 
     printf("Please enter patients full name: ");
     fgets(newPatient.name, sizeof(newPatient.name), stdin);
     newPatient.name[strcspn(newPatient.name, "\n")] = 0;
 
-    printf("Please enter patient's age: ");
-    scanf("%d", &newPatient.age);
-    while (getchar() != '\n') {}
-
-    if (newPatient.age < 0)
+    do
     {
-        printf("Age cannot be less than 0.\n");
-    }
+        printf("Please enter patient's age: ");
+        scanf("%d", &newPatient.age);
+        while (getchar() != '\n') {}
 
-    printf("Please enter patient's room number: ");
-    scanf("%d", &newPatient.roomNumber);
-    while (getchar() != '\n') {}
+        if (newPatient.age < 0)
+        {
+            printf("Age cannot be less than 0.\n");
+        }
+        else
+        {
+            validAge = 1;
+        }
+    } while (validAge != 1);
 
-    if (newPatient.roomNumber < 0)
+    do
     {
-        printf("Room Number cannot be less than 0.\n");
-    }
+        printf("Please enter patient's room number: ");
+        scanf("%d", &newPatient.roomNumber);
+        while (getchar() != '\n') {}
+
+        if (newPatient.roomNumber < 0)
+        {
+            printf("Room Number cannot be less than 0.\n");
+        }
+        else
+        {
+            validRoomNumber = 1;
+        }
+    } while (validRoomNumber != 1);
 
     printf("Please enter patient's diagnosis name or reason for admission: ");
     fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
@@ -206,14 +241,6 @@ void dischargePatients()
     {
         for (int i = index; i < totalPatients; i++)
         {
-            if (i == totalPatients - 1)
-            {
-                break;
-                /* Possible fix in assigning the last struct in the array to RAM
-                 * by making it such that once we reach the last struct, we exit
-                 * from the loop and leave it alone. This will be handled more
-                 * gracefully once we can use proper Mem. Alloc. */
-            }
             patientList[i] = patientList[i + 1];
         }
         totalPatients--;
@@ -231,72 +258,71 @@ void manageDoctorSchedule()
     int choice2;
     int dayChoice;
     int shiftChoice;
-    char name[50];
+    char name[30];
 
-    char string_array[8][4][256] = {
-        {"SCHEDULE", "\tMorning", "\t\tAfternoon", "\tEvening"},
-        {"Sunday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Monday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Tuesday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Wednesday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Thursday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Friday\t", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"},
-        {"Saturday", "\t[EMPTY]", "\t\t[EMPTY]", "\t\t[EMPTY]"}
-    };
-
+    // Display the current schedule
     for (int i = 0; i < 8; i++)
     {
         printf("\n");
         for (int j = 0; j < 4; j++)
         {
-            printf("%s", string_array[i][j]);
+            printf("%-20s", string_array[i][j]);
         }
     }
 
     printf("\nWould you like to edit the schedule? (Y/N): ");
-    scanf(" %c", &choice); // Note the space before %c to consume any leftover newline
+    scanf(" %c", &choice);
 
-    if (choice == 'N' || choice == 'n')
-    {
-        printf("Closing schedule...\n");
-    }
-    else if (choice == 'Y' || choice == 'y')
+    if (choice == 'Y' || choice == 'y')
     {
         printf("Would you like to (1) add or (2) delete from the schedule?: ");
         scanf("%d", &choice2);
-        if (choice2 == 1) //add to schedule
-        {
+        while (getchar() != '\n') {}
+
+        if (choice2 == 1)
+        { // Add to schedule
             printf("Please enter the name of the doctor you would like to add to the schedule: ");
-            while (getchar() != '\n') {}
-            scanf("%[^\n]%*c", name);
+            fgets(name, sizeof(name), stdin);
+            name[strcspn(name, "\n")] = 0;
 
-            printf("Which day would you like to schedule %s ?\n", name);
+            printf("Which day would you like to schedule %s?\n", name);
             printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
-            while (getchar() != '\n') {}
+
             scanf("%d", &dayChoice);
-
-            printf("Which shift would you like to schedule %s ?\n", name);
-            printf("1. Morning \n2. Afternoon \n3. Evening\n");
             while (getchar() != '\n') {}
-            scanf("%d", &shiftChoice);
+            // dayChoice--; // Adjust for 0-based index
 
-            char temp[256]; // Temporary string to hold the formatted name
-            sprintf(temp, "\t%s", name); // Format the name
-            strcpy(string_array[dayChoice][shiftChoice], temp); // Copy the formatted string
-            printf("Shift added successfully!\n");
+            printf("Which shift would you like to schedule %s?\n", name);
+            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+
+            scanf("%d", &shiftChoice);
+            while (getchar() != '\n') {}
+            // shiftChoice--; // Adjust for 0-based index
+
+            // Validate choices
+            if (dayChoice >= 1 && dayChoice < 7 && shiftChoice >= 1 && shiftChoice < 3)
+            {
+                strcpy(string_array[dayChoice][shiftChoice], name);
+                printf("Shift added successfully!\n");
+            }
+            else
+            {
+                printf("Invalid day or shift choice!\n");
+            }
         }
-        else if (choice == 2) //delete from schedule
+        else if (choice2 == 2)
         {
-            printf("do this");
+            // Implement deletion logic here
+            printf("Deletion functionality is not yet implemented.\n");
         }
         else
         {
-            printf("Invalid choice!"); //TODO Loop back to choice if we want
+            printf("Invalid choice.\n");
         }
     }
     else
     {
-        printf("Invalid choice!"); //TODO loop back to choice
+        printf("Closing schedule...\n");
     }
 }
 
