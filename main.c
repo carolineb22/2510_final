@@ -321,6 +321,7 @@ void manageDoctorSchedule()
 
     printf("\nWould you like to edit the schedule? (Y/N): ");
     scanf(" %c", &editScheduleChoice);
+    while (getchar() != '\n') {}
 
     if (editScheduleChoice == 'Y' || editScheduleChoice == 'y')
     {
@@ -332,14 +333,21 @@ void manageDoctorSchedule()
         if (addOrDeleteChoice == 1)
         {
             char doctorName[MAX_NAME_LENGTH];
+            char formattedName[MAX_NAME_LENGTH] = "";
 
             printf("Please enter the name of the doctor you would like to add to the schedule: ");
             fgets(doctorName, sizeof(doctorName), stdin);
             doctorName[strcspn(doctorName, "\n")] = 0;
 
+            if (strlen(doctorName) < MAX_NAME_LENGTH - 1) {
+                strcat(formattedName, doctorName);
+            } else {
+                printf("Error: Doctor's name is too long! Please enter a shorter name.\n");
+                return; // Exit the function if the name is too long
+            }
+
             printf("Which day would you like to schedule %s?", doctorName);
             printf("\n1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
-
             scanf("%d", &dayChoice);
             while (getchar() != '\n') {}
 
