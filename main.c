@@ -1,11 +1,25 @@
+#include <ctype.h>
 #include <stdio.h>
 #include <string.h>
 
 #define MAX_PATIENTS 50
+#define MAX_NAME_LENGTH 30
 
 int totalPatients = 0;
 
-char string_array[8][4][256] = {
+struct Patient
+{
+    int patientID;
+    char name[MAX_NAME_LENGTH];
+    int age;
+    char diagnosis[100];
+    int roomNumber;
+};
+
+struct Patient patientList[MAX_PATIENTS];
+
+/* 3D array to store our formatted doctor schedule. */
+char string_array[8][4][MAX_NAME_LENGTH] = {
     {"SCHEDULE", "\tMorning", "\tAfternoon", "\tEvening"},
     {"Sunday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
     {"Monday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
@@ -16,17 +30,7 @@ char string_array[8][4][256] = {
     {"Saturday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"}
 };
 
-struct Patient
-{
-    int patientID;
-    char name[30];
-    int age;
-    char diagnosis[100];
-    int roomNumber;
-};
-
-struct Patient patientList[MAX_PATIENTS];
-
+// Function prototypes.
 void menu(void);
 void addPatient();
 void viewPatients();
@@ -35,12 +39,16 @@ void dischargePatients();
 void manageDoctorSchedule();
 int patientIdExists();
 
+/* Program entry point. */
 int main(void)
 {
     menu();
     return 0;
 }
 
+/* When called, asks the user for which action they would like to do.
+ * Calls functions to the respective actions and acts as the fallback if
+ * any actions fail due to invalid inputs. */
 void menu()
 {
     int selection;
@@ -69,6 +77,8 @@ void menu()
     } while (selection != 6);
 }
 
+/* Creates a newPatient struct and after taking user input,
+ * adds it to the array of patient structs. */
 void addPatient()
 {
     if (totalPatients >= MAX_PATIENTS)
@@ -78,9 +88,18 @@ void addPatient()
     }
     struct Patient newPatient;
 
+    { // Set int values to -1 so that input validation can catch char inputs.
+        newPatient.patientID = -1;
+        newPatient.age = -1;
+        newPatient.roomNumber = -1;
+    }
+
+    // input validation flags
     int validID = 0,
+        validName = 0,
         validAge = 0,
-        validRoomNumber = 0;
+        validRoomNumber = 0,
+        validDiagnosis = 0;
 
     do
     {
@@ -100,9 +119,21 @@ void addPatient()
         }
     } while (validID != 1);
 
-    printf("Please enter patients full name: ");
-    fgets(newPatient.name, sizeof(newPatient.name), stdin);
-    newPatient.name[strcspn(newPatient.name, "\n")] = 0;
+    do
+    {
+        printf("Please enter patients full name: ");
+        fgets(newPatient.name, sizeof(newPatient.name), stdin);
+        newPatient.name[strcspn(newPatient.name, "\n")] = 0;
+
+        if (isspace(newPatient.name[0]))
+        {
+            printf("Name cannot contain leading whitespace.\n");
+        }
+        else
+        {
+            validName = 1;
+        }
+    } while (validName != 1);
 
     do
     {
@@ -112,7 +143,7 @@ void addPatient()
 
         if (newPatient.age < 0)
         {
-            printf("Age cannot be less than 0.\n");
+            printf("Invalid age.\n");
         }
         else
         {
@@ -128,7 +159,7 @@ void addPatient()
 
         if (newPatient.roomNumber < 0)
         {
-            printf("Room Number cannot be less than 0.\n");
+            printf("Invalid Room Number\n");
         }
         else
         {
@@ -136,9 +167,21 @@ void addPatient()
         }
     } while (validRoomNumber != 1);
 
-    printf("Please enter patient's diagnosis name or reason for admission: ");
-    fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
-    newPatient.diagnosis[strcspn(newPatient.diagnosis, "\n")] = 0;
+    do
+    {
+        printf("Please enter patient's diagnosis name or reason for admission: ");
+        fgets(newPatient.diagnosis, sizeof(newPatient.diagnosis), stdin);
+        newPatient.diagnosis[strcspn(newPatient.diagnosis, "\n")] = 0;
+
+        if (isspace(newPatient.diagnosis[0]))
+        {
+            printf("Diagnosis cannot contain leading whitespace.");
+        }
+        else
+        {
+            validDiagnosis = 1;
+        }
+    } while (validDiagnosis != 1);
 
     patientList[totalPatients] = newPatient;
     totalPatients++;
@@ -146,6 +189,8 @@ void addPatient()
     printf("Patient added successfully!\n");
 }
 
+/* Prints the list of patients to console.
+ * It won't print any if there aren't any patients. */
 void viewPatients()
 {
     if (totalPatients == 0)
@@ -167,6 +212,8 @@ void viewPatients()
     }
 }
 
+/* Allows the searching of patients in the system.
+ * It can search by either ID or name. Name must have an exact match. */
 void searchPatients()
 {
     if (totalPatients == 0)
@@ -176,7 +223,6 @@ void searchPatients()
     }
 
     int choice, id, index = -1;
-    char name[30];
 
     printf("Search by (1) ID or (2) Name: ");
     scanf("%d", &choice);
@@ -192,13 +238,14 @@ void searchPatients()
     }
     else if (choice == 2)
     {
+        char nameToSearch[MAX_NAME_LENGTH];
         printf("Enter Patient Name: ");
-        fgets(name, 30, stdin);
-        name[strcspn(name, "\n")] = 0;
+        fgets(nameToSearch, sizeof(nameToSearch), stdin);
+        nameToSearch[strcspn(nameToSearch, "\n")] = 0;
 
         for (int i = 0; i < totalPatients; i++)
         {
-            if (strcmp(patientList[i].name, name) == 0)
+            if (strcmp(patientList[i].name, nameToSearch) == 0)
             {
                 index = i;
                 break;
@@ -218,9 +265,9 @@ void searchPatients()
     {
         printf("Patient not found.\n");
     }
-
 }
 
+/* Discharges a patient by searching by ID. */
 void dischargePatients()
 {
     if (totalPatients == 0)
@@ -229,13 +276,13 @@ void dischargePatients()
         return;
     }
 
-    int id, index;
+    int id;
 
     printf("Enter Patient ID to Discharge: ");
     scanf("%d", &id);
     while (getchar() != '\n') {}
 
-    index = patientIdExists(patientList, totalPatients, id);
+    const int index = patientIdExists(patientList, totalPatients, id);
 
     if (index != -1)
     {
@@ -252,13 +299,15 @@ void dischargePatients()
     }
 }
 
+/* All in one function to manage doctor schedule. First prints the entire
+ * schedule then gives the user the option to edit or remove a doctor from
+ * the schedule. */
 void manageDoctorSchedule()
 {
-    char choice;
-    int choice2;
+    char editScheduleChoice;
+    int addOrDeleteChoice;
     int dayChoice;
     int shiftChoice;
-    char name[30];
 
     // Display the current schedule
     for (int i = 0; i < 8; i++)
@@ -271,39 +320,41 @@ void manageDoctorSchedule()
     }
 
     printf("\nWould you like to edit the schedule? (Y/N): ");
-    scanf(" %c", &choice);
+    scanf(" %c", &editScheduleChoice);
 
-    if (choice == 'Y' || choice == 'y')
+    if (editScheduleChoice == 'Y' || editScheduleChoice == 'y')
     {
         printf("Would you like to (1) add or (2) delete from the schedule?: ");
-        scanf("%d", &choice2);
+        scanf("%d", &addOrDeleteChoice);
         while (getchar() != '\n') {}
 
-        if (choice2 == 1)
-        { // Add to schedule
-            printf("Please enter the name of the doctor you would like to add to the schedule: ");
-            fgets(name, sizeof(name), stdin);
-            name[strcspn(name, "\n")] = 0;
+        // Add to schedule
+        if (addOrDeleteChoice == 1)
+        {
+            char doctorName[MAX_NAME_LENGTH];
 
-            printf("Which day would you like to schedule %s?\n", name);
-            printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
+            printf("Please enter the name of the doctor you would like to add to the schedule: ");
+            fgets(doctorName, sizeof(doctorName), stdin);
+            doctorName[strcspn(doctorName, "\n")] = 0;
+
+            printf("Which day would you like to schedule %s?", doctorName);
+            printf("\n1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
 
             scanf("%d", &dayChoice);
             while (getchar() != '\n') {}
-            // dayChoice--; // Adjust for 0-based index
 
-            printf("Which shift would you like to schedule %s?\n", name);
-            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+            printf("Which shift would you like to schedule %s?", doctorName);
+            printf("\n1. Morning \n2. Afternoon \n3. Evening\n");
 
             scanf("%d", &shiftChoice);
             while (getchar() != '\n') {}
-            // shiftChoice--; // Adjust for 0-based index
 
             // Validate choices
-            if (dayChoice >= 1 && dayChoice <= 7 && shiftChoice >= 1 && shiftChoice <= 3)
+            if (dayChoice >= 1 && dayChoice <= 7 &&
+                shiftChoice >= 1 && shiftChoice <= 3)
             {
-                char formattedName[50] = {'\t'};
-                strcat(formattedName, name);
+                char formattedName[MAX_NAME_LENGTH] = {'\t'};
+                strcat(formattedName, doctorName);
 
                 strcpy(string_array[dayChoice][shiftChoice], formattedName);
                 printf("Shift added successfully!\n");
@@ -313,15 +364,17 @@ void manageDoctorSchedule()
                 printf("Invalid day or shift choice!\n");
             }
         }
-        else if (choice2 == 2)
+
+        // Remove from schedule
+        else if (addOrDeleteChoice == 2)
         {
             printf("Enter which day to clear: ");
-            printf("1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
+            printf("\n1. Sunday \n2. Monday \n3. Tuesday \n4. Wednesday \n5. Thursday \n6. Friday \n7. Saturday\n");
             scanf("%d", &dayChoice);
             while (getchar() != '\n') {}
 
             printf("Enter the Shift to clear: ");
-            printf("1. Morning \n2. Afternoon \n3. Evening\n");
+            printf("\n1. Morning \n2. Afternoon \n3. Evening\n");
             scanf("%d", &shiftChoice);
             while (getchar() != '\n') {}
 
@@ -348,7 +401,9 @@ void manageDoctorSchedule()
     }
 }
 
-int patientIdExists(struct Patient arr[], int size, int id)
+/* Helper function to see if a given ID exists in the given array.
+ * If the ID exists, the function returns the given ID. If not, returns -1. */
+int patientIdExists(struct Patient arr[], const int size, const int id)
 {
     for (int i = 0; i < size; i++)
     {
