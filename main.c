@@ -1,9 +1,13 @@
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
-#define MAX_PATIENTS 50
+#define INITIAL_PATIENTS 50
 #define MAX_NAME_LENGTH 30
+#define EXPANSION_FACTOR 2
+#define PATIENT_FILE "patients.txt"
+#define SCHEDULE_FILE "schedule.txt"
 
 int totalPatients = 0;
 
@@ -12,11 +16,11 @@ struct Patient
     int patientID;
     char name[MAX_NAME_LENGTH];
     int age;
-    char diagnosis[100];
+    char diagnosis[250];
     int roomNumber;
 };
 
-struct Patient patientList[MAX_PATIENTS];
+struct Patient* patientList;
 
 /* 3D array to store our formatted doctor schedule. */
 char string_array[8][4][MAX_NAME_LENGTH] = {
@@ -37,14 +41,101 @@ void viewPatients();
 void searchPatients();
 void dischargePatients();
 void manageDoctorSchedule();
+void saveToFile();
+void loadFromFile();
 int patientIdExists();
 
 /* Program entry point. */
-int main(void)
-{
+int main(void) {
+    patientList = malloc(INITIAL_PATIENTS * sizeof(struct Patient));
+    if (patientList == NULL) {
+        printf("Memory allocation failed!\n");
+        return 1; // Exit if memory allocation fails
+    }
+    loadFromFile(); // Load existing data at the start
     menu();
+    saveToFile(); // Save data at the end of the session
+
+    free(patientList);
     return 0;
 }
+
+// Function to save patient records and doctor schedules to files.
+void saveToFile() {
+    FILE *patientFile = fopen(PATIENT_FILE, "w");
+    if (patientFile == NULL) {
+        printf("Error opening patient file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < totalPatients; i++) {
+        fprintf(patientFile, "%d,%s,%d,%d,%s\n",
+                patientList[i].patientID,
+                patientList[i].name,
+                patientList[i].age,
+                patientList[i].roomNumber,
+                patientList[i].diagnosis);
+    }
+    fclose(patientFile);
+
+    FILE *scheduleFile = fopen(SCHEDULE_FILE, "w");
+    if (scheduleFile == NULL) {
+        printf("Error opening schedule file for writing.\n");
+        return;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            fprintf(scheduleFile, "%s,", string_array[i][j]);
+        }
+        fprintf(scheduleFile, "\n");
+    }
+    fclose(scheduleFile);
+}
+
+// Function to load patient records and doctor schedules from files.
+void loadFromFile() {
+    FILE *patientFile = fopen(PATIENT_FILE, "r");
+    if (patientFile == NULL) {
+        printf("No existing patient records found.\n");
+        return;
+    }
+
+    while (fscanf(patientFile, "%d,%29[^,],%d,%d,%249[^\n]\n",
+                  &patientList[totalPatients].patientID,
+                  patientList[totalPatients].name,
+                  &patientList[totalPatients].age,
+                  &patientList[totalPatients].roomNumber,
+                  patientList[totalPatients].diagnosis) == 5) {
+        totalPatients++;
+                  }
+    fclose(patientFile);
+
+    FILE *scheduleFile = fopen(SCHEDULE_FILE, "r");
+    if (scheduleFile == NULL) {
+        printf("No existing schedule found.\n");
+        return;
+    }
+
+    for (int i = 0; i < 8; i++) {
+        for (int j = 0; j < 4; j++) {
+            fscanf(scheduleFile, "%29[^,],", string_array[i][j]);
+        }
+        fscanf(scheduleFile, "\n");
+    }
+    fclose(scheduleFile);
+}
+//TODO
+void backupData() {
+    // Code to copy PATIENT_FILE and SCHEDULE_FILE to backup location
+    // Could use a timer of some sort to automatically call this function at set intervals for the "periodic" bit
+}
+
+//TODO
+void restoreData() {
+    // Code to read from a backup file and restore patient and schedule data
+}
+
 
 /* When called, asks the user for which action they would like to do.
  * Calls functions to the respective actions and acts as the fallback if
@@ -79,13 +170,17 @@ void menu()
 
 /* Creates a newPatient struct and after taking user input,
  * adds it to the array of patient structs. */
-void addPatient()
-{
-    if (totalPatients >= MAX_PATIENTS)
-    {
-        printf("Hospital is full! cannot add more patients.\n");
-        return;
+void addPatient() {
+    if (totalPatients >= INITIAL_PATIENTS) {
+        // Reallocate memory to accommodate more patients
+        struct Patient* temp = realloc(patientList, (totalPatients + INITIAL_PATIENTS) * sizeof(struct Patient));
+        if (temp == NULL) {
+            printf("Memory reallocation failed!\n");
+            return;
+        }
+        patientList = temp;
     }
+
     struct Patient newPatient;
 
     { // Set int values to -1 so that input validation can catch char inputs.
@@ -108,7 +203,6 @@ void addPatient()
         while (getchar() != '\n') {}
 
         if (newPatient.patientID <= 0 ||
-            newPatient.patientID > MAX_PATIENTS ||
             patientIdExists(patientList, totalPatients, newPatient.patientID) != -1)
         {
             printf("Invalid or duplicate ID!\n");
