@@ -1,1 +1,3 @@
-/usr/bin/cc -g CMakeFiles/2510.dir/main.c.o -o 2510
+"C:\Program Files\JetBrains\CLion 2024.3.4\bin\cmake\win\x64\bin\cmake.exe" -E rm -f CMakeFiles\2510.dir/objects.a
+C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\ar.exe qc CMakeFiles\2510.dir/objects.a @CMakeFiles\2510.dir\objects1.rsp
+C:\PROGRA~1\JETBRA~1\CLION2~1.4\bin\mingw\bin\gcc.exe -g -Wl,--whole-archive CMakeFiles\2510.dir/objects.a -Wl,--no-whole-archive -o 2510.exe -Wl,--out-implib,lib2510.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\2510.dir\linkLibs.rsp

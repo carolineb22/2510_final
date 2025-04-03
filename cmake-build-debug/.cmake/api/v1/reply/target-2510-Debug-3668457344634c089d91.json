@@ -2,7 +2,10 @@
 	"artifacts" : 
 	[
 		{
-			"path" : "2510"
+			"path" : "2510.exe"
+		},
+		{
+			"path" : "2510.pdb"
 		}
 	],
 	"backtrace" : 1,
@@ -65,12 +68,16 @@
 			{
 				"fragment" : "",
 				"role" : "flags"
+			},
+			{
+				"fragment" : "-lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32",
+				"role" : "libraries"
 			}
 		],
 		"language" : "C"
 	},
 	"name" : "2510",
-	"nameOnDisk" : "2510",
+	"nameOnDisk" : "2510.exe",
 	"paths" : 
 	{
 		"build" : ".",
