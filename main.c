@@ -7,6 +7,7 @@
 #define MAX_NAME_LENGTH 30
 #define MAX_DIAGNOSIS_LENGTH 250
 #define EXPANSION_FACTOR 2
+#define EMPTY_SCHEDULE_RECORD "\t[EMPTY]"
 #define PATIENT_FILE "patients.txt"
 #define SCHEDULE_FILE "schedule.txt"
 
@@ -31,13 +32,13 @@ struct Patient* patientList = NULL;;
 /* 3D array to store our formatted doctor schedule. */
 char string_array[8][4][MAX_NAME_LENGTH] = {
     {"SCHEDULE", "\tMorning", "\tAfternoon", "\tEvening"},
-    {"Sunday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Monday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Tuesday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Wednesday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Thursday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Friday\t", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"},
-    {"Saturday", "\t[EMPTY]", "\t[EMPTY]", "\t[EMPTY]"}
+    {"Sunday\t", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Monday\t", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Tuesday\t", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Wednesday", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Thursday", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Friday\t", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD},
+    {"Saturday", EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD, EMPTY_SCHEDULE_RECORD}
 };
 
 // Function prototypes.
@@ -57,9 +58,6 @@ void backupData();
 void restoreData();
 void freePatientList();
 
-int validIntegerInput(int *value);
-void getValidStringInput(char *buffer, int maxLength, const char *prompt);
-
 int patientIdExists();
 
 /* Program entry point. */
@@ -67,7 +65,6 @@ int main()
 {
     loadFromFile(PATIENT_FILE, SCHEDULE_FILE);
     menu();
-    saveToFile(PATIENT_FILE, SCHEDULE_FILE);
     freePatientList();
     return 0;
 }
@@ -110,6 +107,8 @@ void saveToFile(const char* patient_file_name, const char* schedule_file_name)
         }
         fprintf(scheduleFile, "\n");
     }
+    printf("Files saved successfully!\n");
+
     fclose(scheduleFile);
 }
 
@@ -159,6 +158,8 @@ void loadFromFile(const char* patient_file_name, const char* schedule_file_name)
         }
         fscanf(scheduleFile, "\n");
     }
+    printf("Files loaded successfully!\n");
+
     fclose(scheduleFile);
 }
 
@@ -183,12 +184,17 @@ void menu()
     int selection;
     do
     {
+        saveToFile(PATIENT_FILE, SCHEDULE_FILE);
+
         printf("\n1. Add Patient Record\n"
             "2. View All Patients\n"
             "3. Search Patient\n"
             "4. Discharge Patient\n"
             "5. Manage Doctor Schedule\n"
-            "6. Exit");
+            "6. Backup data\n"
+            "7. Restore from backup\n"
+            "8. Exit\n");
+
         printf("\nEnter your selection : ");
         scanf("%d", &selection);
         while(getchar() != '\n'){}
@@ -205,12 +211,16 @@ void menu()
             break;
         case 5: manageDoctorSchedule();
             break;
-        case 6: printf("Exiting Program...\n");
+        case 6: backupData();
+            break;
+        case 7: restoreData();
+            break;
+        case 8: printf("Exiting Program...\n");
             break;
         default: printf("Invalid choice! Try again.\n");
         }
     }
-    while(selection != 6);
+    while(selection != 8);
 }
 
 /* Add a new patient to the linked list */
@@ -483,7 +493,7 @@ void manageDoctorSchedule()
         if(addOrDeleteChoice == 1)
         {
             char doctorName[MAX_NAME_LENGTH];
-            char formattedName[MAX_NAME_LENGTH] = "";
+            char formattedName[MAX_NAME_LENGTH] = "\t"; // load formatted name with tab
 
             printf("Please enter the name of the doctor you would like to add to the schedule: ");
             fgets(doctorName, sizeof(doctorName), stdin);
@@ -526,6 +536,16 @@ void manageDoctorSchedule()
                 return;
             }
             while(getchar() != '\n') {}
+
+            if(strcmp(string_array[dayChoice][shiftChoice], EMPTY_SCHEDULE_RECORD) != 0)
+            {
+                printf("Cannot override doctor schedule, please remove manually.\n");
+            }
+            else
+            {
+                strcpy(string_array[dayChoice][shiftChoice], formattedName);
+                printf("Shift added successfully!\n");
+            }
         }
 
         // Remove from schedule
@@ -547,8 +567,15 @@ void manageDoctorSchedule()
             if(dayChoice >= 1 && dayChoice <= 7 &&
                 shiftChoice >= 1 && shiftChoice <= 3)
             {
-                strcpy(string_array[dayChoice][shiftChoice], "\t[EMPTY]");
-                printf("Shift removed successfully!\n");
+                if(strcmp(string_array[dayChoice][shiftChoice], EMPTY_SCHEDULE_RECORD) == 0)
+                {
+                    printf("There is nothing to do.\n");
+                }
+                else
+                {
+                    strcpy(string_array[dayChoice][shiftChoice], EMPTY_SCHEDULE_RECORD);
+                    printf("Shift removed successfully!\n");
+                }
             }
             else
             {
@@ -594,36 +621,3 @@ void freePatientList()
         free(temp);
     }
 }
-
-int validIntegerInput(int *value)
-{
-    char buffer[50];
-    if (fgets(buffer, sizeof(buffer), stdin) == NULL)
-    {
-        return 0;
-    }
-    if (sscanf(buffer, "%d", value) != 1)
-    {
-        printf("Invalid input! Please enter a number.\n");
-        return 0;
-    }
-    return 1;
-}
-
-void getValidStringInput(char *buffer, const int maxLength, const char *prompt)
-{
-    while (1)
-    {
-        printf("%s", prompt);
-        if (fgets(buffer, maxLength, stdin))
-        {
-            buffer[strcspn(buffer, "\n")] = 0;  // Remove newline
-            if (strlen(buffer) > 0)
-            {
-                return;
-            }
-        }
-        printf("Input cannot be empty! Try again.\n");
-    }
-}
-
