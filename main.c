@@ -3,16 +3,16 @@
 #include <string.h>
 #include <stdlib.h>
 
-#define INITIAL_PATIENTS 50
-#define MAX_NAME_LENGTH 30
-#define MAX_DIAGNOSIS_LENGTH 250
-#define EXPANSION_FACTOR 2
-#define EMPTY_SCHEDULE_RECORD "\t[EMPTY]"
-#define PATIENT_FILE "patients.txt"
-#define SCHEDULE_FILE "schedule.txt"
+#define INITIAL_PATIENTS        50
+#define MAX_NAME_LENGTH         30
+#define MAX_DIAGNOSIS_LENGTH    250
+#define EXPANSION_FACTOR        2
+#define EMPTY_SCHEDULE_RECORD   "\t[EMPTY]"
+#define PATIENT_FILE            "patients.txt"
+#define SCHEDULE_FILE           "schedule.txt"
 
-#define BACKUP_PATIENT_FILE "backup_patients.txt"
-#define BACKUP_SCHEDULE_FILE "backup_schedule.txt"
+#define BACKUP_PATIENT_FILE     "backup_patients.txt"
+#define BACKUP_SCHEDULE_FILE    "backup_schedule.txt"
 
 int totalPatients = 0;
 
@@ -172,7 +172,6 @@ void backupData()
 // Call loadFromFile function with Backup File paths
 void restoreData()
 {
-    freePatientList();
     loadFromFile(BACKUP_PATIENT_FILE, BACKUP_SCHEDULE_FILE);
 }
 
